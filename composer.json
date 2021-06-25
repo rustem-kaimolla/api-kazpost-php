@@ -1,0 +1,26 @@
+{
+  "name": "rustemKaimolla/kazpost-api",
+  "description": "Пакет для работы с API КазПочты Казахстан",
+  "minimum-stability": "stable",
+  "license": "Apache License 2.0",
+  "authors": [
+    {
+      "name": "Rustem Kaimolla",
+      "email": "rustem@exact.kz"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "guzzlehttp/guzzle": "^7.0",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "RustemKaimolla\\KazPost\\": "src/",
+      "Test\\KazPost\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.5"
+  }
+}
