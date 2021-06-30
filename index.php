@@ -1,9 +1,9 @@
 <?php
 include_once "vendor/autoload.php";
 
-use RustemKaimolla\KazPost\API;
+use RustemKaimolla\KazPost\KazPostAPI;
 
-$api = new API();
+$api = new KazPostAPI();
 
 $my_track = $api->get('TRACK_CODE');
 echo "Статус посылки " .$my_track->status;
