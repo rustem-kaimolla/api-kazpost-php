@@ -2,7 +2,7 @@
   "name": "rustem-kaimolla/kazpost-api",
   "description": "Пакет для работы с API КазПочты Казахстан",
   "minimum-stability": "stable",
-  "license": "Apache License 2.0",
+  "license": "LGPL-2.1-only",
   "authors": [
     {
       "name": "Rustem Kaimolla",
