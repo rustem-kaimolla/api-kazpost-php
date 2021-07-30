@@ -2,19 +2,13 @@
 
 namespace Test\KazPost;
 
-use phpDocumentor\Reflection\Types\Array_;
 use PHPUnit\Framework\TestCase;
 use RustemKaimolla\KazPost\KazPostAPI;
 
 class APITest extends TestCase
 {
-    public function test__construct()
-    {
 
-    }
-
-
-    public function test__get()
+    public function testGet(): void
     {
         $api = new KazPostAPI();
         $track_code = "CC016695190KZ";
@@ -24,11 +18,19 @@ class APITest extends TestCase
         $this->assertNull($api->get($track_code_false)->status_code);
     }
 
-    public function test__get_data()
+    public function testGetData(): void
     {
         $api = new KazPostAPI();
         $track_code = "CC016695190KZ";
 
-        $this->assertIsArray($api->get($track_code)->get_data());
+        $this->assertIsArray($api->get($track_code)->getData());
     }
+	
+	public function testGetInbox(): void
+	{
+		$api = new KazPostAPI();
+		$track_code = "CC016695190KZ";
+		
+		$this->assertIsArray($api->get($track_code)->inbox()->getInbox());
+	}
 }
