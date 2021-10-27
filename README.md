@@ -9,5 +9,8 @@
 Трекинг работает https://post.kz/services/postal/
 
 Для тестирования склонируйте себе на устрйоство 
+```git@github.com:rustemKaimolla/kazpost-api-client.git```
 Установите зависимоти
+```composer install```
 Запустите свой php сервер
+
