@@ -4,6 +4,7 @@ namespace RustemKaimolla\KazPost;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use RustemKaimolla\KazPost\Exceptions\TrackCodeException;
 
 /**
  * @property mixed|null status_code
@@ -23,7 +24,7 @@ class KazPostAPI
 	 *
 	 * @var
 	 */
-	protected string $track_code;
+	protected string $track_code = '';
     
     /**
      * Хранит ответ сервера в виде массива
@@ -44,14 +45,14 @@ class KazPostAPI
      *
      * @var array
     */
-    protected array $last;
+    protected ?array $last = null;
 	
 	/**
 	 * Ряд и ячейка
 	 *
-	 * @var array
+	 * @var array|null
 	 */
-	protected array $inbox;
+	protected ?array $inbox = null;
 
     /**
      * Экземпляр GuzzleHttp\Client
@@ -71,44 +72,60 @@ class KazPostAPI
      * @param string $track_code трек код посылки
      *
      * @return $this
+     * @throws GuzzleException
      */
     public function get(string $track_code):self
     {
     	$this->track_code = $track_code;
-        try {
-            $response = $this->client->request('GET', $track_code . '/events');
+        $this->events = array();
+        $this->last = null;
+        $response = $this->client->request('GET', $track_code);
 
-            if($response->getStatusCode() === 200){
-                $this->data = json_decode($response->getBody(), true);
-                $this->events = $this->data['events'];
-                $this->last = $this->data['events'][0];
-            }
-
-        } catch (GuzzleException $e) {
-            exit("Ошибка выполнения HTTP запроса");
+        if ($response->getStatusCode() === 200) {
+            $this->data = json_decode($response->getBody(), true);
         }
         return $this;
     }
-	
-	/**
-	 * Получает ряд и ячейку посылки
-	 *
-	 * @return $this
-	 */
+
+    /**
+     * Получает данные о посылке
+     *
+     * @return $this
+     * @throws GuzzleException
+     */
+    public function getEvents():self
+    {
+        if (!strlen($this->track_code)) {
+            throw new TrackCodeException("Трек код не определён");
+        }
+        $response = $this->client->request('GET', $this->track_code . '/events');
+
+        if ($response->getStatusCode() === 200) {
+            $this->events = $response->getBody()['events'];
+            if (count($this->data['events'])) {
+                $this->last = $this->events[0];
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Получает ряд и ячейку посылки
+     *
+     * @return $this
+     * @throws GuzzleException
+     */
 	public function inbox(): self
     {
-	    try {
-		    $response = $this->client->request(
-		    	'GET',
-			    'https://post.kz/mail-app/public/supermarket?barcode=' . $this->track_code . '&index=' . $this->last['activity'][0]['dep_code']);
-		
-		    if($response->getStatusCode() === 200){
-			    $this->inbox = json_decode($response->getBody(), true);
-		    }
-		
-	    } catch (GuzzleException $e) {
-		    exit("Ошибка выполнения HTTP запроса");
-	    }
+        if ($this->last === null) return $this;
+
+        $response = $this->client->request(
+            'GET',
+            'https://post.kz/mail-app/public/supermarket?barcode=' . $this->track_code . '&index=' . $this->last['activity'][0]['dep_code']);
+
+        if($response->getStatusCode() === 200){
+            $this->inbox = json_decode($response->getBody(), true);
+        }
 	    return $this;
     }
 
@@ -139,7 +156,7 @@ class KazPostAPI
 	 *
 	 * @return array
 	 */
-	public function getInbox(): array
+	public function getInbox(): ?array
     {
     	return $this->inbox;
     }
@@ -153,13 +170,13 @@ class KazPostAPI
     {
     	return $this->events;
     }
-	
-	/**
-	 * Возвращает последнее местонахождение
-	 *
-	 * @return array
-	 */
-	public function getLast(): array
+
+    /**
+     * Возвращает последнее местонахождение
+     *
+     * @return array|null
+     */
+	public function getLast(): ?array
     {
     	return $this->last;
     }
